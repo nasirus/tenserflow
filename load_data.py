@@ -2,11 +2,12 @@ from binance.client import Client
 from datetime import datetime, timedelta
 import pandas as pd
 import logging
+import os  # Import the os module
 
 # Set up basic configuration for logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def load_data():    
+def load_data():
     try:
         logging.info("Initializing Binance client...")
         client = Client()
@@ -14,8 +15,9 @@ def load_data():
         symbol = 'BTCUSDT'
         interval = client.KLINE_INTERVAL_15MINUTE
         file_path = 'data/btcusdt_klines_with_indicators.parquet'
-        start_date = datetime.now() - timedelta(days=90)
+        data_directory = os.path.dirname(file_path)  # Get the directory part of the file_path
 
+        start_date = datetime.now() - timedelta(days=90)
         end_date = datetime.now()
         start_str = int(start_date.timestamp() * 1000)
         end_str = int(end_date.timestamp() * 1000)
@@ -29,6 +31,12 @@ def load_data():
         
         klines_df.ffill(inplace=True)
         klines_df = klines_df.drop(['Close time', 'Quote asset volume', 'Number of trades', 'Taker buy base asset volume', 'Taker buy quote asset volume', 'Ignore'], axis=1)
+
+        # Check if the directory exists, create it if it doesn't
+        if not os.path.exists(data_directory):
+            logging.info(f"Directory {data_directory} does not exist. Creating it...")
+            os.makedirs(data_directory)
+
         klines_df.to_parquet(file_path)
 
         logging.info("Operation completed successfully.")
