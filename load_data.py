@@ -14,7 +14,7 @@ def load_data():
         symbol = 'BTCUSDT'
         interval = client.KLINE_INTERVAL_15MINUTE
         file_path = 'data/btcusdt_klines_with_indicators.parquet'
-        start_date = datetime.now() - timedelta(days=1*365)
+        start_date = datetime.now() - timedelta(days=90)
 
         end_date = datetime.now()
         start_str = int(start_date.timestamp() * 1000)

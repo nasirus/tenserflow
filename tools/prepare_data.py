@@ -1,11 +1,12 @@
 import numpy as np
-from sklearn.preprocessing import RobustScaler
+from sklearn.preprocessing import MinMaxScaler
 from tools.indicators import calculate_indicators
 from tools.clean_df import clean_and_prepare_data
+import joblib
 
-
+default_scaler=MinMaxScaler()
 # Data preparation function including indicators
-def prepare_data_with_indicators(df, input_window_size=60, future_window_size=10, scaler=RobustScaler()):
+def prepare_data_with_indicators(df, input_window_size=60, future_window_size=10, scaler=default_scaler):
     df = calculate_indicators(df)
     df = clean_and_prepare_data(df)
     feature_columns = [col for col in df.columns if col not in ['Open time', 'Open','Low', 'High', 'Close time', 'Quote asset volume', 'Number of trades', 'Taker buy base asset volume', 'Taker buy quote asset volume', 'Ignore']]
@@ -24,10 +25,13 @@ def prepare_data_with_indicators(df, input_window_size=60, future_window_size=10
     for i in range(input_window_size, len(df) - future_window_size):
         X.append(scaled_features[i - input_window_size:i])
         y.append(scaled_targets[i:i + future_window_size].flatten())
+    
+    joblib.dump(scaler_features, 'scalers/scaler_features.pkl')
+
     return np.array(X), np.array(y), scaler_features, scaler_targets
 
 
-def prepare_predict_with_indicators(df, input_window_size=60, scaler=RobustScaler()):
+def prepare_predict_with_indicators(df, input_window_size=60, ):
     # Calculate indicators and clean the data
     df = calculate_indicators(df)
     df = clean_and_prepare_data(df)
@@ -39,8 +43,8 @@ def prepare_predict_with_indicators(df, input_window_size=60, scaler=RobustScale
     data_features = df[feature_columns].values
 
     # Initialize and fit scalers
-    scaler_features = scaler
-    scaled_features = scaler_features.fit_transform(data_features)
+    scaler_features = joblib.load('scaler/scaler_features.pkl')
+    scaled_features = scaler_features.transform(data_features)
 
     # Prepare the last 'input_window_size' features as input for prediction
     X = scaled_features[-input_window_size:].reshape(1, input_window_size, -1) # Reshape for model input

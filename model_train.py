@@ -1,5 +1,8 @@
 import pandas as pd
 import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Conv1D, MaxPooling1D, LSTM, Dense, Dropout, BatchNormalization
+from tensorflow.keras.regularizers import l2
 from tools.prepare_data import prepare_data_with_indicators
 import logging
 
@@ -21,20 +24,12 @@ def build_model(input_window_size = 96, future_window_size = 24, epochs=100, bat
 
     logging.info("Building model...")
     
-    model = tf.keras.models.Sequential([
-        tf.keras.layers.Input(shape=((input_window_size, X.shape[2]))),
-        
-        # LSTM layers
-        tf.keras.layers.LSTM(50, return_sequences=True, name='lstm_1'),
-        tf.keras.layers.Dropout(0.3, name='dropout_1'),
-        tf.keras.layers.LSTM(100, return_sequences=False, name='lstm_2'),
-        tf.keras.layers.Dropout(0.3, name='dropout_2'),
-        
-        # Dense layers for prediction
-        tf.keras.layers.Dense(40, name='dense_1'),
-        tf.keras.layers.Dropout(0.3, name='dropout_3'),
-
-        tf.keras.layers.Dense(future_window_size * 2, name='output_layer')  # For 10 days prediction, each with high and low
+    model = Sequential([
+        Input(shape=((input_window_size, X.shape[2]))),
+        LSTM(128, return_sequences=True),
+        LSTM(256, return_sequences=False),
+        Dense(200),
+        Dense(future_window_size * 2, name='output_layer')  # For 10 days prediction, each with high and low
     ])
 
     print(model.summary())
@@ -53,4 +48,4 @@ def build_model(input_window_size = 96, future_window_size = 24, epochs=100, bat
     
     logging.info("Saving model...")
     # Save the model for future use
-    model.save("stock_prediction_model.keras")
+    model.save("models/stock_prediction_model.keras")

@@ -12,8 +12,8 @@ import logging
 # Set up basic configuration for logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-input_window_size = 200
-future_window_size = 12
+input_window_size = 100
+future_window_size = 50
 
 # Initialize the Binance client
 client = Client()
@@ -60,18 +60,18 @@ def make_predictions(model, new_data_frame):
     return last_prediction  # or predictions_inversed if you did inverse scaling
 
 logging.info("Start loading data from exchange...")
-#load_data()
+load_data()
 
 logging.info("Start building and training model...")
-#build_model(input_window_size=input_window_size,future_window_size=future_window_size)
+build_model(input_window_size=input_window_size,future_window_size=future_window_size)
 
 logging.info("Loading model from file...")
-model = tf.keras.models.load_model('stock_prediction_model.keras')
+model = tf.keras.models.load_model('models/stock_prediction_model.keras')
 
 logging.info("Fetching historical data...")
 # Fetch new data (you'll need to implement or connect fetch_historical_prices to a real data source)
 new_data_frame = fetch_historical_prices('BTCUSDT', client.KLINE_INTERVAL_15MINUTE, 90)
-
+print(new_data_frame.tail())
 
 logging.info("Making prediction...")
 # Make predictions
