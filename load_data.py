@@ -13,11 +13,11 @@ def load_data():
         client = Client()
 
         symbol = 'BTCUSDT'
-        interval = client.KLINE_INTERVAL_15MINUTE
+        interval = client.KLINE_INTERVAL_1HOUR
         file_path = 'data/btcusdt_klines_with_indicators.parquet'
         data_directory = os.path.dirname(file_path)  # Get the directory part of the file_path
 
-        start_date = datetime.now() - timedelta(days=90)
+        start_date = datetime.now() - timedelta(days=365*7)
         end_date = datetime.now()
         start_str = int(start_date.timestamp() * 1000)
         end_str = int(end_date.timestamp() * 1000)

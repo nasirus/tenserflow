@@ -3,9 +3,27 @@ import ta
 
 def calculate_indicators(df):
 
-    df = ta.add_all_ta_features(
-        df, open="Open", high="High", low="Low", close="Close", volume="Volume", fillna=True
-    )
+    #df = ta.add_all_ta_features(df, open="Open", high="High", low="Low", close="Close", volume="Volume", fillna=True)
+    df['RSI'] = ta.momentum.RSIIndicator(df['Close']).rsi()
+    df['SMA14'] = ta.trend.SMAIndicator(df['Close'], window=14).sma_indicator()
+    df['SMA24'] = ta.trend.SMAIndicator(df['Close'], window=24).sma_indicator()
+    df['SMA48'] = ta.trend.SMAIndicator(df['Close'], window=48).sma_indicator()
+    df['SAR_psar_down_indicator'] = ta.trend.PSARIndicator(df['High'], df['Low'], df['Close']).psar_down_indicator()
+    df['SAR_psar_up_indicator'] = ta.trend.PSARIndicator(df['High'], df['Low'], df['Close']).psar_up_indicator()
+    df['MACD_diff'] = ta.trend.macd_diff(df['Close'])
+
+    df['bollinger_hband_indicator'] = ta.volatility.bollinger_hband_indicator(df['Close'])
+    df['bollinger_lband_indicator'] = ta.volatility.bollinger_lband_indicator(df['Close'])
+    df['volatility_bbh'] = ta.volatility.bollinger_hband(df['Close'])
+    df['volatility_bbl'] = ta.volatility.bollinger_lband(df['Close'])
+    
+    df['BOL_p'] = ta.volatility.bollinger_pband(df['Close'])
+    df['PPO_s'] = ta.momentum.PercentagePriceOscillator(close=df['Close']).ppo_signal()
+    df['Stoch_Osc_signal'] = ta.momentum.StochasticOscillator(df['High'], df['Low'], df['Close']).stoch_signal()
+    df['OBV'] = ta.volume.OnBalanceVolumeIndicator(close=df['Close'],volume=df['Volume']).on_balance_volume()
+    df['PVO_s'] = ta.momentum.PercentageVolumeOscillator(volume=df['Volume']).pvo_signal()
+    
+    df = df[48:]
     return df
 """
     df['RSI'] = ta.momentum.RSIIndicator(df['Close']).rsi()

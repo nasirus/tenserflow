@@ -1,5 +1,6 @@
 import pandas as pd
 from indicators import calculate_indicators
+import numpy as np
 
 df = pd.read_parquet('data/btcusdt_klines_with_indicators.parquet')
 
@@ -12,6 +13,6 @@ df = calculate_indicators(df)
 pd.set_option('display.max_rows', None)  # None means show all rows
 pd.set_option('display.max_columns', None)  # None means show all columns
 
-print(df.tail())
-print(df.columns.tolist())
-print(len(df.columns.tolist()))
+print(df.head(100))
+print(len(df))
+

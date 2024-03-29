@@ -1,18 +1,18 @@
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import RobustScaler
 from tools.indicators import calculate_indicators
 from tools.clean_df import clean_and_prepare_data
 import joblib
 import os
 
-default_scaler = MinMaxScaler()
+default_scaler = RobustScaler()
 
 # Data preparation function including indicators
 def prepare_data_with_indicators(df, input_window_size=60, future_window_size=10, scaler=default_scaler):
     df = calculate_indicators(df)
     df = clean_and_prepare_data(df)
-    feature_columns = [col for col in df.columns if col not in ['Open time', 'Open','Low', 'High', 'Close time', 'Quote asset volume', 'Number of trades', 'Taker buy base asset volume', 'Taker buy quote asset volume', 'Ignore']]
-    target_columns = ['Low', 'High']
+    feature_columns = [col for col in df.columns if col not in ['Open time', 'Open', 'High', 'Low', 'Close', 'Volume','volatility_bbl', 'volatility_bbh', 'Close time', 'Quote asset volume', 'Number of trades', 'Taker buy base asset volume', 'Taker buy quote asset volume', 'Ignore']]
+    target_columns = ['volatility_bbl', 'volatility_bbh']
     
     data_features = df[feature_columns].values
     data_targets = df[target_columns].values
@@ -43,7 +43,7 @@ def prepare_predict_with_indicators(df, input_window_size=60):
     df = clean_and_prepare_data(df)
 
     # Define feature columns, excluding non-feature columns
-    feature_columns = [col for col in df.columns if col not in ['Open time', 'Open', 'Low', 'High', 'Close time', 'Quote asset volume', 'Number of trades', 'Taker buy base asset volume', 'Taker buy quote asset volume', 'Ignore']]
+    feature_columns = [col for col in df.columns if col not in ['Open time', 'Open', 'volatility_bbl', 'volatility_bbh', 'Close time', 'Quote asset volume', 'Number of trades', 'Taker buy base asset volume', 'Taker buy quote asset volume', 'Ignore']]
     
     # Extract features
     data_features = df[feature_columns].values

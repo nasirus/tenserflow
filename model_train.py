@@ -1,7 +1,7 @@
 import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Input, LSTM, Dense
+from tensorflow.keras.layers import Input, LSTM, Dense, Dropout, Conv1D, MaxPooling1D
 from tools.prepare_data import prepare_data_with_indicators
 import logging
 import os
@@ -26,16 +26,19 @@ def build_model(input_window_size = 96, future_window_size = 24, epochs=100, bat
     
     model = Sequential([
         Input(shape=((input_window_size, X.shape[2]))),
-        LSTM(128, return_sequences=True),
-        LSTM(256, return_sequences=False),
-        Dense(200),
+        LSTM(256, return_sequences=True),
+        Dropout(0.2),
+        LSTM(512, return_sequences=False),
+        Dropout(0.2),
+        Dense(400, activation='relu'),
+        Dropout(0.2),
         Dense(future_window_size * 2, name='output_layer')  # For 10 days prediction, each with high and low
     ])
 
     print(model.summary())
 
     # Early Stopping
-    early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=20, restore_best_weights=True)
+    early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=50, restore_best_weights=True)
 
     logging.info("Compiling model...")
     
@@ -44,10 +47,12 @@ def build_model(input_window_size = 96, future_window_size = 24, epochs=100, bat
     
     logging.info("Training model...")
     # Modify model.fit to include callbacks
-    model.fit(X, y, batch_size=batch_size, epochs=epochs, validation_split=0.2, callbacks=[early_stopping])
+    model.fit(X, y, batch_size=batch_size, epochs=epochs, validation_split=0.2
+              , callbacks=[early_stopping]
+              )
     
     logging.info("Saving model...")
-    model_directory = 'scalers'  # Define the directory to store scaler files
+    model_directory = 'models'  # Define the directory to store scaler files
     # Check if the directory exists, create it if it doesn't
     if not os.path.exists(model_directory):
         os.makedirs(model_directory)
